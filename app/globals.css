@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #1B1F3B;
+    --retro-blue: #4D6AFF;
+    --pixel-pink: #FF7AA2;
+    --xp-yellow: #FFD166;
+    --white: #F5F5F5;
+  }
+
+  body {
+    @apply bg-background text-white font-sans;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+}
+
+@layer utilities {
+  .pixel-font {
+    font-family: 'Press Start 2P', monospace;
+  }
+
+  .pixel-art {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+}
+
