@@ -370,8 +370,20 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
     } else if (newPlayerSequence.length === sequence.length) {
       // Sequência completa! Próxima rodada
       const points = powerUp === "double-points" ? 20 : 10;
-      setScore(score + points);
+      const newScore = score + points;
+      setScore(newScore);
       setPlayerSequence([]);
+
+      // Considerar jogo completo após completar 3 rodadas (sequência de 3 elementos)
+      if (sequence.length >= 3) {
+        setGameActive(false);
+        const finalScore = newScore;
+        const isNewRecord = saveScore(type as GameType, finalScore);
+        setNewRecord(isNewRecord);
+        setShowConfetti(true);
+        onComplete(finalScore, true); // Sucesso ao completar 3 rodadas
+        return;
+      }
 
       // Timeout: se não começar a próxima sequência em 3 segundos, perde
       setTimeout(() => {
@@ -735,8 +747,26 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
             <p className="text-sm text-white/70 text-center">
               {isShowingSequence
                 ? "Memorize rápido! A sequência fica mais rápida a cada rodada!"
-                : "Clique nas cores na mesma ordem! Você tem 3 segundos para começar a próxima rodada!"}
+                : "Clique nas cores na mesma ordem! Complete 3 rodadas para vencer!"}
             </p>
+            {!isShowingSequence && gameActive && sequence.length > 0 && (
+              <Button
+                onClick={() => {
+                  setGameActive(false);
+                  const finalScore = score;
+                  const isNewRecord = saveScore(type as GameType, finalScore);
+                  setNewRecord(isNewRecord);
+                  // Sucesso se completou pelo menos 1 rodada
+                  const success = sequence.length >= 2;
+                  if (success) setShowConfetti(true);
+                  onComplete(finalScore, success);
+                }}
+                variant="outline"
+                className="w-full"
+              >
+                Finalizar Jogo
+              </Button>
+            )}
           </div>
         );
 

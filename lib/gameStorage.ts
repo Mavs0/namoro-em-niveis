@@ -129,6 +129,7 @@ export function completeGame(level: number, gameType: GameType): boolean {
     }
   }
 
+  // Salvar o array completo de progresso, não apenas um nível
   localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
   return allGamesCompleted;
 }
