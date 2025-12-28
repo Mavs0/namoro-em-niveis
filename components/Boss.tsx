@@ -80,7 +80,7 @@ export default function Boss() {
       clearInterval(moveInterval);
       clearTimeout(timeout);
     };
-  }, [incomingAttack]);
+  }, [incomingAttack, phase]);
 
   // Mudar de fase baseado na vida do boss
   useEffect(() => {

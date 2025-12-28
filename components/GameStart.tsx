@@ -65,8 +65,8 @@ export default function GameStart({ onStart }: GameStartProps) {
         {/* Mini declaração */}
         <div className="animate-fade-in-up-delay-1">
           <p className="romantic-font-light text-lg md:text-xl lg:text-2xl text-white/70 max-w-3xl mx-auto leading-relaxed italic">
-            "Este jogo é sobre nós — sobre cada conversa, cada riso, cada
-            desafio superado juntos."
+            &ldquo;Este jogo é sobre nós — sobre cada conversa, cada riso, cada
+            desafio superado juntos.&rdquo;
           </p>
         </div>
 

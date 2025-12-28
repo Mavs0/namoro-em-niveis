@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -107,7 +107,7 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
   }, [powerUp, powerUpTimeLeft]);
 
   // Gerar power-up aleatório
-  const generatePowerUp = () => {
+  const generatePowerUp = useCallback(() => {
     if (Math.random() < 0.3 && !powerUp) {
       // 30% de chance de gerar power-up
       const types: PowerUpType[] = ["double-points", "extra-time"];
@@ -115,7 +115,7 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
       setPowerUp(randomType);
       setPowerUpTimeLeft(10); // 10 segundos de duração
     }
-  };
+  }, [powerUp]);
 
   // Jogo: Clique nos Corações
   useEffect(() => {
@@ -160,7 +160,16 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
         clearInterval(heartTimeout);
       };
     }
-  }, [type, gameActive, timeLeft, score, onComplete, loading, powerUp]);
+  }, [
+    type,
+    gameActive,
+    timeLeft,
+    score,
+    onComplete,
+    loading,
+    powerUp,
+    generatePowerUp,
+  ]);
 
   // Jogo: Memory Game
   useEffect(() => {
