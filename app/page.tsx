@@ -72,35 +72,35 @@ export default function Home() {
       level: 1,
       title: "CONHECER",
       description:
-        "O primeiro nível de qualquer história de amor. Aqueles momentos iniciais cheios de descobertas, risos nervosos e aquele frio na barriga que só aparece quando encontramos alguém especial.",
+        "Conhecer você foi acontecendo aos poucos, sem pressa, quase sem perceber. Aprendi seus gostos, seus silêncios e o jeito cuidadoso com que você ama. Em sete meses, percebi que não era só sobre gostar — era sobre me sentir em casa em alguém. Desde o começo, algo em mim soube que você não seria passageiro.",
       status: getLevelStatus(1),
     },
     {
       level: 2,
       title: "CONFIAR",
       description:
-        "Construir confiança é como desbloquear uma nova área no jogo. Cada gesto de cuidado, cada promessa cumprida, cada momento de vulnerabilidade compartilhada aumenta nossa barra de confiança.",
+        "Confiar foi um aprendizado diário. Nem sempre fácil, nem sempre automático, mas sempre escolhido. Mesmo quando minhas inseguranças falavam mais alto, eu continuei aqui, tentando acreditar no que a gente construiu. Confiar em você também me ensinou que amar exige coragem.",
       status: getLevelStatus(2),
     },
     {
       level: 3,
       title: "CRESCER JUNTOS",
       description:
-        "Este é o nível que nunca termina completamente. Crescemos, mudamos, evoluímos. E o mais bonito é fazer isso lado a lado, apoiando um ao outro em cada nova fase da vida.",
+        "Crescer juntos tem sido entender que o amor não é só leveza. Às vezes é ajuste, conversa difícil e reconhecer erros. Eu sei que já falhei, que já me confundi e que às vezes fiz parecer que eu não sentia o que sinto. Mas crescer com você é escolher melhorar, não desistir e aprender com cada passo.",
       status: getLevelStatus(3),
     },
     {
       level: 4,
       title: "COMUNICAÇÃO",
       description:
-        "O boss mais desafiador de qualquer relacionamento. Requer coragem para falar, paciência para ouvir e muito amor para entender. Mas quando superamos, ficamos mais fortes.",
+        "Esse nível quase derrubou a gente. Uma conversa difícil, sentimentos atravessados e o medo de perder falaram mais alto. Me desculpa por todas as vezes em que te fiz duvidar do meu amor ou pensar que eu estava aqui sem querer estar. Eu quero aprender a falar melhor, ser mais segura, mais clara e mais justa com você. Porque eu gosto de você — de verdade — e não quero mais deixar dúvidas onde existe sentimento.",
       status: getLevelStatus(4),
     },
     {
       level: 5,
       title: "FUTURO",
       description:
-        "O nível final ainda está bloqueado, mas sabemos que será épico. Cheio de sonhos realizados, momentos especiais e uma vida construída a dois. Estamos prontos para desbloquear quando chegar a hora certa.",
+        "O futuro ainda não está liberado, e tudo bem. Ele não se constrói com promessas grandes, mas com escolhas pequenas todos os dias. O que eu sei agora é que quero continuar jogando com você, com mais cuidado, mais diálogo e menos medo. Não prometo perfeição, prometo intenção, presença e vontade sincera de continuar.",
       status: "locked" as const,
     },
   ];

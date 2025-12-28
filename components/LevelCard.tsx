@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { CheckCircle2, AlertCircle, Lock, Gamepad2 } from "lucide-react";
 
 export type LevelStatus = "completed" | "in-progress" | "locked" | "boss";
@@ -25,7 +31,9 @@ export default function LevelCard({
       case "completed":
         return <CheckCircle2 className="w-6 h-6 text-xp-yellow" />;
       case "in-progress":
-        return <AlertCircle className="w-6 h-6 text-retro-blue animate-pulse" />;
+        return (
+          <AlertCircle className="w-6 h-6 text-retro-blue animate-pulse" />
+        );
       case "boss":
         return <Gamepad2 className="w-6 h-6 text-pixel-pink animate-bounce" />;
       case "locked":
@@ -71,11 +79,10 @@ export default function LevelCard({
         </div>
       </CardHeader>
       <CardContent>
-        <CardDescription className="text-base leading-relaxed">
+        <CardDescription className="text-base leading-relaxed text-white/90 whitespace-pre-line">
           {description}
         </CardDescription>
       </CardContent>
     </Card>
   );
 }
-
