@@ -14,7 +14,7 @@ import Confetti from "./Confetti";
 type MiniGameType =
   | "heart-click"
   | "memory"
-  | "sequence"
+  | "word-match"
   | "reaction"
   | "puzzle";
 
@@ -45,10 +45,16 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
     Array<{ id: number; emoji: string; flipped: boolean; matched: boolean }>
   >([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
-  const [sequence, setSequence] = useState<number[]>([]);
-  const [playerSequence, setPlayerSequence] = useState<number[]>([]);
-  const [sequenceStep, setSequenceStep] = useState(0);
-  const [isShowingSequence, setIsShowingSequence] = useState(false);
+  const [wordPairs, setWordPairs] = useState<
+    Array<{
+      id: number;
+      word: string;
+      pairId: number;
+      matched: boolean;
+      selected: boolean;
+    }>
+  >([]);
+  const [selectedWords, setSelectedWords] = useState<number[]>([]);
   const [reactionTarget, setReactionTarget] = useState<{
     id: number;
     x: number;
@@ -70,10 +76,8 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
     setNewRecord(false);
     setPowerUp(null);
     setPowerUpTimeLeft(0);
-    setSequence([]);
-    setPlayerSequence([]);
-    setSequenceStep(-1);
-    setIsShowingSequence(false);
+    setWordPairs([]);
+    setSelectedWords([]);
     setReactionTarget(null);
     setReactionStartTime(null);
 
@@ -175,67 +179,50 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
     }
   }, [type, loading]);
 
-  // Jogo: Sequência (Simon Says)
+  // Jogo: Match de Palavras
   useEffect(() => {
-    if (
-      type === "sequence" &&
-      !loading &&
-      gameActive &&
-      sequence.length === 0
-    ) {
-      // Iniciar primeira sequência
-      const firstColor = Math.floor(Math.random() * 4);
-      setSequence([firstColor]);
-      setIsShowingSequence(true);
-      setPlayerSequence([]);
+    if (type === "word-match" && !loading) {
+      const pairs = [
+        { word1: "Amor", word2: "Coração" },
+        { word1: "Beijo", word2: "Carinho" },
+        { word1: "Abraço", word2: "Aconchego" },
+        { word1: "Riso", word2: "Alegria" },
+        { word1: "Olhar", word2: "Conexão" },
+        { word1: "Sonho", word2: "Futuro" },
+      ];
 
-      // Mostrar sequência mais rápida
-      setTimeout(() => {
-        setSequenceStep(0);
-        setTimeout(() => {
-          setIsShowingSequence(false);
-          setSequenceStep(-1);
-        }, 600); // Reduzido de 800 para 600ms
-      }, 300); // Reduzido de 500 para 300ms
-    } else if (
-      type === "sequence" &&
-      !loading &&
-      gameActive &&
-      playerSequence.length === sequence.length &&
-      sequence.length > 0 &&
-      !isShowingSequence
-    ) {
-      // Sequência completa, adicionar próximo
-      const nextColor = Math.floor(Math.random() * 4);
-      const newSequence = [...sequence, nextColor];
-      setSequence(newSequence);
-      setIsShowingSequence(true);
-      setPlayerSequence([]);
+      // Criar array com todas as palavras embaralhadas
+      const allWords: Array<{
+        id: number;
+        word: string;
+        pairId: number;
+        matched: boolean;
+        selected: boolean;
+      }> = [];
+      pairs.forEach((pair, pairIndex) => {
+        allWords.push(
+          {
+            id: pairIndex * 2,
+            word: pair.word1,
+            pairId: pairIndex,
+            matched: false,
+            selected: false,
+          },
+          {
+            id: pairIndex * 2 + 1,
+            word: pair.word2,
+            pairId: pairIndex,
+            matched: false,
+            selected: false,
+          }
+        );
+      });
 
-      // Mostrar sequência completa - mais rápida conforme aumenta
-      const speed = Math.max(400, 800 - (newSequence.length - 1) * 50); // Fica mais rápido
-      let step = 0;
-      const showInterval = setInterval(() => {
-        if (step < newSequence.length) {
-          setSequenceStep(step);
-          step++;
-        } else {
-          setIsShowingSequence(false);
-          setSequenceStep(-1);
-          clearInterval(showInterval);
-        }
-      }, speed);
-
-      return () => clearInterval(showInterval);
+      // Embaralhar
+      const shuffled = allWords.sort(() => Math.random() - 0.5);
+      setWordPairs(shuffled);
     }
-  }, [
-    type,
-    loading,
-    sequence.length,
-    playerSequence.length,
-    gameActive,
-    isShowingSequence,
-  ]);
+  }, [type, loading]);
 
   // Jogo: Reação
   useEffect(() => {
@@ -349,51 +336,72 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
     }
   };
 
-  const handleSequenceClick = (colorIndex: number) => {
-    if (isShowingSequence || !gameActive) return;
+  const handleWordClick = (id: number) => {
+    if (!gameActive) return;
 
-    const newPlayerSequence = [...playerSequence, colorIndex];
-    setPlayerSequence(newPlayerSequence);
+    // Verificar condições antes de prosseguir
+    const word = wordPairs.find((w) => w.id === id);
+    if (!word || word.matched || word.selected) return;
+    if (selectedWords.length >= 2) return;
 
-    // Verificar se está correto
-    if (
-      newPlayerSequence[newPlayerSequence.length - 1] !==
-      sequence[newPlayerSequence.length - 1]
-    ) {
-      // Erro! Fim do jogo - FALHA
-      setGameActive(false);
-      const finalScore = score;
-      const isNewRecord = saveScore(type as GameType, finalScore);
-      setNewRecord(isNewRecord);
-      // Não mostrar confetti em caso de falha
-      onComplete(finalScore, false); // false = falhou
-    } else if (newPlayerSequence.length === sequence.length) {
-      // Sequência completa! Próxima rodada
-      const points = powerUp === "double-points" ? 20 : 10;
-      const newScore = score + points;
-      setScore(newScore);
-      setPlayerSequence([]);
+    const newSelected = [...selectedWords, id];
 
-      // Considerar jogo completo após completar 3 rodadas (sequência de 3 elementos)
-      if (sequence.length >= 3) {
-        setGameActive(false);
-        const finalScore = newScore;
-        const isNewRecord = saveScore(type as GameType, finalScore);
-        setNewRecord(isNewRecord);
-        setShowConfetti(true);
-        onComplete(finalScore, true); // Sucesso ao completar 3 rodadas
-        return;
-      }
+    // Marcar como selecionado
+    setWordPairs((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, selected: true } : w))
+    );
 
-      // Timeout: se não começar a próxima sequência em 3 segundos, perde
+    setSelectedWords(newSelected);
+
+    // Se agora temos 2 palavras selecionadas, verificar match
+    if (newSelected.length === 2) {
       setTimeout(() => {
-        if (gameActive && playerSequence.length === 0 && !isShowingSequence) {
-          setGameActive(false);
-          onComplete(score, false);
-        }
-      }, 3000);
+        setWordPairs((current) => {
+          const first = current.find((w) => w.id === newSelected[0]);
+          const second = current.find((w) => w.id === newSelected[1]);
 
-      // Adicionar próximo número à sequência será feito pelo useEffect
+          if (first && second && first.pairId === second.pairId) {
+            // Match! Par encontrado
+            const points = powerUp === "double-points" ? 20 : 10;
+            const updated = current.map((word) =>
+              newSelected.includes(word.id)
+                ? { ...word, matched: true, selected: false }
+                : { ...word, selected: false }
+            );
+
+            // Verificar se todos os pares foram encontrados
+            const allMatched = updated.every((w) => w.matched);
+            if (allMatched) {
+              setTimeout(() => {
+                setGameActive(false);
+                setScore((prevScore) => {
+                  const finalScore = prevScore + points;
+                  const isNewRecord = saveScore(type as GameType, finalScore);
+                  setNewRecord(isNewRecord);
+                  setShowConfetti(true);
+                  onComplete(finalScore, true);
+                  return finalScore;
+                });
+              }, 300);
+            } else {
+              setScore((prev) => prev + points);
+            }
+
+            setSelectedWords([]);
+            return updated;
+          } else {
+            // Não é match - desmarcar
+            const updated = current.map((word) =>
+              newSelected.includes(word.id)
+                ? { ...word, selected: false }
+                : word
+            );
+            setScore((prev) => Math.max(0, prev - 5));
+            setSelectedWords([]);
+            return updated;
+          }
+        });
+      }, 800);
     }
   };
 
@@ -670,19 +678,11 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
           </div>
         );
 
-      case "sequence":
-        const colors = [
-          { bg: "bg-retro-blue", name: "Azul" },
-          { bg: "bg-pixel-pink", name: "Rosa" },
-          { bg: "bg-xp-yellow", name: "Amarelo" },
-          { bg: "bg-white", name: "Branco" },
-        ];
-
+      case "word-match":
         return (
           <div className="space-y-6">
             <div className="pixel-font text-retro-blue text-center">
-              RODADA: {sequence.length} | PONTOS: {score}{" "}
-              {bestScore > 0 && `| MELHOR: ${bestScore}`}
+              PONTOS: {score} {bestScore > 0 && `| MELHOR: ${bestScore}`}
             </div>
             {powerUp && (
               <div className="bg-xp-yellow/20 border border-xp-yellow rounded p-2 text-center">
@@ -691,82 +691,43 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
                 </span>
               </div>
             )}
-            {isShowingSequence ? (
-              <div className="text-center space-y-4">
-                <p className="pixel-font text-lg text-white">
-                  Observe a sequência...
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {wordPairs.map((word) => (
+                <button
+                  key={word.id}
+                  onClick={() => handleWordClick(word.id)}
+                  disabled={!gameActive || word.matched || word.selected}
+                  className={`p-4 rounded-lg border-2 transition-all font-sans text-sm md:text-base ${
+                    word.matched
+                      ? "bg-xp-yellow/50 border-xp-yellow text-white"
+                      : word.selected
+                      ? "bg-retro-blue/50 border-retro-blue text-white scale-105"
+                      : "bg-background/50 border-retro-blue/30 hover:border-retro-blue text-white/80 hover:text-white"
+                  }`}
+                >
+                  {word.word}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-white/50 text-center">
+              ⚠️ Erros custam 5 pontos!
+            </p>
+            {wordPairs.every((w) => w.matched) && (
+              <div className="text-center space-y-4 pt-4">
+                <Trophy className="w-12 h-12 text-xp-yellow mx-auto" />
+                <p className="pixel-font text-xl text-retro-blue">
+                  TODOS OS PARES ENCONTRADOS!
                 </p>
-                <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto">
-                  {colors.map((color, index) => (
-                    <div
-                      key={index}
-                      className={`aspect-square rounded-lg border-4 border-white transition-all ${
-                        color.bg
-                      } ${
-                        sequenceStep === index
-                          ? "scale-110 ring-4 ring-white"
-                          : "opacity-50"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="pixel-font text-lg text-white text-center">
-                  Repita a sequência!
-                </p>
-                <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto">
-                  {colors.map((color, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleSequenceClick(index)}
-                      disabled={!gameActive}
-                      className={`aspect-square rounded-lg border-4 border-white transition-all hover:scale-110 ${color.bg}`}
-                    />
-                  ))}
-                </div>
-                {!gameActive && (
-                  <div className="text-center space-y-4 pt-4">
-                    <Trophy className="w-12 h-12 text-xp-yellow mx-auto" />
-                    <p className="pixel-font text-xl text-retro-blue">
-                      SEQUÊNCIA COMPLETA!
-                    </p>
-                    <p className="pixel-font text-lg text-retro-blue">
-                      Você completou {sequence.length - 1} rodadas!
-                    </p>
-                    {newRecord && (
-                      <p className="pixel-font text-lg text-pixel-pink">
-                        🎉 NOVO RECORDE! 🎉
-                      </p>
-                    )}
-                  </div>
+                {newRecord && (
+                  <p className="pixel-font text-lg text-pixel-pink">
+                    🎉 NOVO RECORDE! 🎉
+                  </p>
                 )}
               </div>
             )}
             <p className="text-sm text-white/70 text-center">
-              {isShowingSequence
-                ? "Memorize rápido! A sequência fica mais rápida a cada rodada!"
-                : "Clique nas cores na mesma ordem! Complete 3 rodadas para vencer!"}
+              Encontre os pares de palavras relacionadas ao amor!
             </p>
-            {!isShowingSequence && gameActive && sequence.length > 0 && (
-              <Button
-                onClick={() => {
-                  setGameActive(false);
-                  const finalScore = score;
-                  const isNewRecord = saveScore(type as GameType, finalScore);
-                  setNewRecord(isNewRecord);
-                  // Sucesso se completou pelo menos 1 rodada
-                  const success = sequence.length >= 2;
-                  if (success) setShowConfetti(true);
-                  onComplete(finalScore, success);
-                }}
-                variant="outline"
-                className="w-full"
-              >
-                Finalizar Jogo
-              </Button>
-            )}
           </div>
         );
 
@@ -829,7 +790,7 @@ export default function MiniGame({ type, onComplete, onClose }: MiniGameProps) {
             {type === "heart-click" && "💕 CLIQUE NOS CORAÇÕES"}
             {type === "memory" && "🧠 JOGO DA MEMÓRIA"}
             {type === "reaction" && "⚡ JOGO DE REAÇÃO"}
-            {type === "sequence" && "🎯 SEQUÊNCIA DE MEMÓRIA"}
+            {type === "word-match" && "💝 MATCH DE PALAVRAS"}
             {type === "puzzle" && "🧩 PUZZLE NUMÉRICO"}
           </DialogTitle>
         </DialogHeader>

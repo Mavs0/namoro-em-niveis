@@ -27,7 +27,7 @@ export default function Home() {
   const [showBoss, setShowBoss] = useState(false);
   const [showFinal, setShowFinal] = useState(false);
   const [activeMiniGame, setActiveMiniGame] = useState<
-    "heart-click" | "memory" | "reaction" | "sequence" | "puzzle" | null
+    "heart-click" | "memory" | "reaction" | "word-match" | "puzzle" | null
   >(null);
 
   // Estado do jogo (agora dinâmico!)
@@ -138,9 +138,9 @@ export default function Home() {
           // XP fixo por completar memória (20 XP)
           xpToAdd = 20;
           break;
-        case "sequence":
-          // XP baseado em quantas rodadas completou (máx 25 XP)
-          xpToAdd = Math.min(25, Math.floor(xpGained / 4));
+        case "word-match":
+          // XP fixo por completar match de palavras (20 XP)
+          xpToAdd = 20;
           break;
         case "puzzle":
           // XP fixo por resolver puzzle (25 XP)
@@ -179,7 +179,7 @@ export default function Home() {
 
     // Encontrar qual nível contém este jogo
     let completedLevel = 0;
-    if (["heart-click", "sequence"].includes(gameType)) completedLevel = 1;
+    if (["heart-click", "word-match"].includes(gameType)) completedLevel = 1;
     else if (["memory", "puzzle"].includes(gameType)) completedLevel = 2;
     else if (gameType === "reaction") completedLevel = 3;
 
@@ -211,11 +211,11 @@ export default function Home() {
   const getMiniGameForLevel = (
     level: number
   ):
-    | ("heart-click" | "memory" | "reaction" | "sequence" | "puzzle")[]
+    | ("heart-click" | "memory" | "reaction" | "word-match" | "puzzle")[]
     | null => {
     switch (level) {
       case 1:
-        return ["heart-click", "sequence"];
+        return ["heart-click", "word-match"];
       case 2:
         return ["memory", "puzzle"];
       case 3:
@@ -290,7 +290,7 @@ export default function Home() {
                             {gameType === "heart-click" && "💕 CORAÇÕES"}
                             {gameType === "memory" && "🧠 MEMÓRIA"}
                             {gameType === "reaction" && "⚡ REAÇÃO"}
-                            {gameType === "sequence" && "🎯 SEQUÊNCIA"}
+                            {gameType === "word-match" && "💝 MATCH"}
                             {gameType === "puzzle" && "🧩 PUZZLE"}
                             {isCompleted && " ✓"}
                           </Button>

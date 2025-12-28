@@ -3,7 +3,7 @@
 export type GameType =
   | "heart-click"
   | "memory"
-  | "sequence"
+  | "word-match"
   | "reaction"
   | "puzzle";
 
@@ -137,7 +137,7 @@ export function completeGame(level: number, gameType: GameType): boolean {
 export function getRequiredGamesForLevel(level: number): GameType[] {
   switch (level) {
     case 1:
-      return ["heart-click", "sequence"];
+      return ["heart-click", "word-match"];
     case 2:
       return ["memory", "puzzle"];
     case 3:
